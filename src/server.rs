@@ -5,11 +5,11 @@ use std::slice;
 
 extern "C" {
     fn new_parameters(ele_num: u32, ele_size: u32, N: u32, logt: u32, d: u32) -> *mut libc::c_void;
-    fn update_parameters(params: *mut libc::c_void, ele_num: u32, ele_size: u32, d: u32);
+    //fn update_parameters(params: *mut libc::c_void, ele_num: u32, ele_size: u32, d: u32);
     fn delete_parameters(params: *mut libc::c_void);
 
     fn new_pir_server(params: *const libc::c_void) -> *mut libc::c_void;
-    fn update_server_params(pir_server: *mut libc::c_void, params: *const libc::c_void);
+    //fn update_server_params(pir_server: *mut libc::c_void, params: *const libc::c_void);
     fn delete_pir_server(pir_server: *mut libc::c_void);
 
     fn set_galois_key(
@@ -27,18 +27,19 @@ extern "C" {
 
     fn preprocess_db(pir_server: *mut libc::c_void);
 
-    // for debugging/benchmark purposes only
-    fn expand_query(
-        pir_server: *const libc::c_void,
-        params: *const libc::c_void,
-        query: *const u8,
-        query_size: u32,
-        query_num: u32,
-        client_id: u32,
-    );
+    //// for debugging/benchmark purposes only
+    //fn expand_query(
+    //    pir_server: *const libc::c_void,
+    //    params: *const libc::c_void,
+    //    query: *const u8,
+    //    query_size: u32,
+    //    query_num: u32,
+    //    client_id: u32,
+    //);
 
     fn generate_reply(
         pir_server: *const libc::c_void,
+        params: *const libc::c_void,
         query: *const u8,
         query_size: u32,
         query_num: u32,
@@ -85,17 +86,17 @@ impl<'a> PirServer<'a> {
         }
     }
 
-    pub fn update_params(&mut self, ele_num: u32, ele_size: u32, d: u32) {
-        unsafe {
-            update_parameters(self.params, ele_num, ele_size, d);
-            update_server_params(self.server, self.params);
-        }
+    //pub fn update_params(&mut self, ele_num: u32, ele_size: u32, d: u32) {
+    //    unsafe {
+    //        update_parameters(self.params, ele_num, ele_size, d);
+    //        update_server_params(self.server, self.params);
+    //    }
 
-        self.ele_size = ele_size;
-        self.ele_num = ele_num;
-    }
+    //    self.ele_size = ele_size;
+    //    self.ele_num = ele_num;
+    //}
 
-    pub fn setup<T>(&mut self, collection: &[T]) {
+    pub fn setup<T>(&mut self, collection: Vec<T>) {
         assert_eq!(collection.len(), self.ele_num as usize);
         assert_eq!(mem::size_of::<T>(), self.ele_size as usize);
 
@@ -106,6 +107,8 @@ impl<'a> PirServer<'a> {
                 self.ele_num,
                 self.ele_size,
             );
+
+            std::mem::forget(collection);
 
             preprocess_db(self.server);
         }
@@ -125,6 +128,7 @@ impl<'a> PirServer<'a> {
         let reply: Vec<u8> = unsafe {
             let ptr = generate_reply(
                 self.server,
+                self.params,
                 query.query.as_ptr(),
                 query.query.len() as u32,
                 query.num,
@@ -144,17 +148,17 @@ impl<'a> PirServer<'a> {
         }
     }
 
-    // for microbenchmark purposes only
-    pub fn expand(&self, query: &PirQuery, client_id: u32) {
-        unsafe {
-            expand_query(
-                self.server,
-                self.params,
-                query.query.as_ptr(),
-                query.query.len() as u32,
-                query.num,
-                client_id,
-            )
-        }
-    }
+    //// for microbenchmark purposes only
+    //pub fn expand(&self, query: &PirQuery, client_id: u32) {
+    //    unsafe {
+    //        expand_query(
+    //            self.server,
+    //            self.params,
+    //            query.query.as_ptr(),
+    //            query.query.len() as u32,
+    //            query.num,
+    //            client_id,
+    //        )
+    //    }
+    //}
 }
