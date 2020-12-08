@@ -1,6 +1,6 @@
 [submodule "sealpir"]
 	path = sealpir
-	url = https://github.com/microsoft/sealpir.git
+	url = git@github.com:KoffeinFlummi/sealpir.git
 [submodule "seal"]
 	path = seal
 	url = https://github.com/microsoft/SEAL
