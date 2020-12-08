@@ -97,8 +97,8 @@ impl<'a> PirServer<'a> {
     //}
 
     pub fn setup<T>(&mut self, collection: Vec<T>) {
-        assert_eq!(collection.len(), self.ele_num as usize);
-        assert_eq!(mem::size_of::<T>(), self.ele_size as usize);
+        //assert_eq!(collection.len(), self.ele_num as usize);
+        //assert_eq!(mem::size_of::<T>(), self.ele_size as usize);
 
         unsafe {
             set_database(
