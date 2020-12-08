@@ -117,14 +117,9 @@ impl<'a> PirClient<'a> {
         }
     }
 
-    pub fn decode_reply<T>(&self, ele_index: u32, reply: &PirReply) -> T
-    where
-        T: Clone,
-    {
-        assert_eq!(self.ele_size as usize, mem::size_of::<T>());
-
+    pub fn decode_reply(&self, ele_index: u32, reply: &PirReply) -> Vec<u8> {
         let mut result_size: u32 = 0;
-        let result: T = unsafe {
+        let result: Vec<u8> = unsafe {
             // returns the content of the FV plaintext
             let ptr = decode_reply(
                 self.client,
@@ -139,9 +134,9 @@ impl<'a> PirClient<'a> {
             let offset = get_fv_offset(self.client, ele_index, self.ele_size);
             assert!(offset + self.ele_size <= result_size as u32);
 
-            let r = slice::from_raw_parts_mut((ptr as *mut T).offset(offset as isize), 1).to_vec();
+            let r = slice::from_raw_parts_mut((ptr as *mut u8).offset(offset as isize), result_size as usize).to_vec();
             libc::free(ptr as *mut libc::c_void);
-            r[0].clone()
+            r[0..self.ele_size as usize].to_vec()
         };
 
         result
