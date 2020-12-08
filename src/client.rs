@@ -1,5 +1,4 @@
 use libc;
-use std::mem;
 use std::slice;
 
 use super::{PirQuery, PirReply};
